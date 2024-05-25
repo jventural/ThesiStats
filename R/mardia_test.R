@@ -13,16 +13,19 @@ mardia_test <- function(data) {
 
   A <- mardia(data, plot=F)
 
-  result <- data.frame(Test = c("Mardia Skewness", "Mardia Kurtosis"),
-                       Statistic = c(A$small.skew, A$kurtosis),
-                       p.value = c(A$p.small, A$p.kurt),
-                       Result = c(ifelse(A$p.small < 0.05, "NO", "YES"), ifelse(A$p.kurt < 0.05, "NO", "YES")))
+  # Crear el data frame de resultados
+  result <- data.frame(
+    Test = c("Mardia Skewness", "Mardia Kurtosis"),
+    Statistic = c(A$small.skew, A$kurtosis),
+    p.value = c(A$p.small, A$p.kurt),
+    Result = c(ifelse(A$p.small < 0.05, "NO", "YES"), ifelse(A$p.kurt < 0.05, "NO", "YES"))
+  )
 
-  # Ajustar p.value a mostrar "p < .001" cuando sea 0 o menor a 0.001
-  result$p.value <- ifelse(result$p.value <= 0.001, "p < .001", result$p.value)
+  # Ajustar primero los valores p y luego aplicar el formato condicional
+  result$p.value <- round(result$p.value, 3)  # Redondear todos los valores de p
 
-  result <- result %>% mutate(across(where(is.numeric), round, 3))
+  # Aplicar la condición de formato especial después del redondeo
+  result$p.value <- ifelse(result$p.value <= 0.001, "p < .001", as.character(result$p.value))
 
   return(result)
 }
-
