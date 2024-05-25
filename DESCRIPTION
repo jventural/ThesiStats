@@ -1,11 +1,18 @@
 Package: ThesiStats
-Type: Package
-Title: What the Package Does (Title Case)
-Version: 0.1.0
-Author: Who wrote it
-Maintainer: The package maintainer <yourself@somewhere.net>
-Description: More about what it does (maybe more than one line)
-    Use four spaces when indenting paragraphs within the Description.
-License: What license is it under?
+Version: 1.0.0
+Date: 2024-05-25
+Title: Thesis Analysis Tools for Statistical Computing
 Encoding: UTF-8
-LazyData: true
+Author: Jose Ventura <jventuraleon@gmail.com>
+Maintainer: Jose Ventura <jventuraleon@gmail.com>
+Depends: R (>= 4.0.0)
+Imports: dplyr, ggplot2, psych, MVN, gridExtra, gtable, tidyr, broom, reshape2
+Description: ThesiStats is a specialized package designed to support advanced statistical analyses and data processing tasks specifically tailored for thesis development in social and behavioral sciences. This package includes tools for item renaming, reliability analysis, multivariate normality testing, and visualization of complex statistical concepts such as Mahalanobis distances. It is aimed at students, researchers, and academicians looking to streamline their data analysis workflow in thesis projects.
+License: GPL (>= 3)
+URL: https://github.com/jventuraleon/ThesiStats
+Packaged: 2024-05-25 12:00:00 UTC; JoseVentura
+Suggests: testthat (>= 3.0.0), knitr, rmarkdown
+Config/testthat/edition: 3
+NeedsCompilation: no
+Repository: CRAN
+Date/Publication: 2024-05-25 16:00:00 UTC
