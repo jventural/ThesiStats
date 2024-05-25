@@ -16,3 +16,4 @@ Config/testthat/edition: 3
 NeedsCompilation: no
 Repository: CRAN
 Date/Publication: 2024-05-25 16:00:00 UTC
+RoxygenNote: 7.3.1
