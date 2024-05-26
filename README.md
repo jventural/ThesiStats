@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://github.com/jventural/ThesiStats/blob/master/Logo_ThesiStats.png" alt="ThesiStats" width="200" height="200"/>
+  <img src="https://github.com/jventural/ThesiStats/blob/master/Logo_ThesiStats2.png" alt="ThesiStats" width="200" height="200"/>
 </p>
 
 <h1 align="center">ThesiStats</h1>
