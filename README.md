@@ -25,4 +25,5 @@ Puedes instalar la última versión de ThesiStats desde GitHub con ayuda del paq
 if (!require("devtools")) {
   install.packages("devtools")
 }
-devtools::install_github("tu_usuario/ThesiStats")
+devtools::install_github("jventural/ThesiStats")
+```
