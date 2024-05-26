@@ -1,18 +1,28 @@
-![Logo de ThesiStats]([ruta/al/logo.png](https://raw.githubusercontent.com/jventural/ThesiStats/master/Logo%20de%20libreria.webp))
+<p align="center">
+  <img src="https://github.com/jventural/ThesiStats/blob/master/Logo_ThesiStats.png" alt="ThesiStats" width="200" height="200"/>
+</p>
 
-# ThesiStats
+<h1 align="center">ThesiStats</h1>
 
-Una librería que permite realizar análisis estadísticos avanzados fácilmente. Diseñada especialmente para investigadores en el área de la psicología y ciencias sociales.
+<p align="center">
+    Una librería que ayuda en el preprocesamiento y limpieza de datos en el contexto de las tesis.
+    <br />
+    <a href="https://tu_pagina_web.com/"><strong>Explorar la página web del autor»</strong></a>
+    <br />
+    <br />
+</p>
 
-![CRAN](https://img.shields.io/cran/v/thesistats?style=flat-square)
+<!-- BADGES -->
+<p align="center">
+  <!-- Si tienes badges, por ejemplo de CRAN, puedes incluirlos aquí: -->
+  <img src="https://www.r-pkg.org/badges/version/ThesiStats" alt="CRAN version"/>
+</p>
+
 
 ## Instalación
-
 Puedes instalar la última versión de ThesiStats desde GitHub con ayuda del paquete `devtools`:
-
 ```r
 if (!require("devtools")) {
   install.packages("devtools")
 }
 devtools::install_github("tu_usuario/ThesiStats")
-```
