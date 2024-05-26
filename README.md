@@ -25,8 +25,7 @@ devtools::install_github("jventural/ThesiStats")
 ```
 # Ejemplos
 ## Omega coefficient calculation using ThesiStats library
-Descripción:
-Esta función calcula la confiabilidad de todos los factores de un test en un conjunto de datos. Utiliza modelos de ecuaciones estructurales para estimar la confiabilidad compuesta, conocida como Omega, para cada factor especificado en el objeto extracted. Es útil en el análisis psicométrico y para la validación de instrumentos de investigación.
+Esta función calcula la confiabilidad de todos los factores de un test en un conjunto de datos. Utiliza modelos de ecuaciones estructurales para estimar la confiabilidad compuesta, conocida como Omega, para cada factor especificado en el objeto extracted. Es útil en el análisis preliminar de demostrar la fiabilidad de los instrumentos antes de hacer estudios de correlación.
 ```r
 extracted <- extract_items(text)
 final_result <- calcula_omega_all(extracted, data)
@@ -34,7 +33,6 @@ print(final_result)
 ```
 ----
 ## Correlation matrix calculation using ThesiStats library
-Descripción:
 Esta función calcula una matriz de correlación utilizando métodos de Pearson, Spearman o Pearson Winsorizado. Está diseñada para trabajar con un rango de columnas dentro de un conjunto de datos, permitiendo un análisis flexible de las relaciones entre variables.
 
 ```r
@@ -44,7 +42,6 @@ print(resultado)
 ----
 
 ## Percentage distribution calculation using ThesiStats library
-Descripción:
 Esta función calcula la distribución porcentual para columnas especificadas dentro de un conjunto de datos. Es útil para entender las frecuencias relativas de diferentes categorías o valores en cada variable.
 
 ```r
@@ -55,7 +52,6 @@ print(porcentajes)
 
 ----
 ## Likert Scale Detection using ThesiStats library
-Descripción:
 Esta función examina un data frame para encontrar expresiones únicas de escalas Likert consolidando todos los valores de las columnas en una sola columna e identificando entradas únicas. Es útil para reconocer respuestas estandarizadas en datos de encuestas.
 
 ```r
