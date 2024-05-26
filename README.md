@@ -6,10 +6,6 @@
 
 <p align="center">
     Una librería que ayuda en el preprocesamiento y limpieza de datos en el contexto de las tesis.
-    <br />
-    <a href="https://tu_pagina_web.com/"><strong>Explorar la página web del autor»</strong></a>
-    <br />
-    <br />
 </p>
 
 <!-- BADGES -->
