@@ -23,3 +23,44 @@ if (!require("devtools")) {
 }
 devtools::install_github("jventural/ThesiStats")
 ```
+Omega coefficient calculation using ThesiStats library
+Descripción:
+Esta función calcula la confiabilidad de todos los factores de un test en un conjunto de datos. Utiliza modelos de ecuaciones estructurales para estimar la confiabilidad compuesta, conocida como Omega, para cada factor especificado en el objeto extracted. Es útil en el análisis psicométrico y para la validación de instrumentos de investigación.
+```r
+extracted <- extract_items(text)
+final_result <- calcula_omega_all(extracted, data)
+print(final_result)
+```
+----
+Correlation matrix calculation using ThesiStats library
+Descripción:
+Esta función calcula una matriz de correlación utilizando métodos de Pearson, Spearman o Pearson Winsorizado. Está diseñada para trabajar con un rango de columnas dentro de un conjunto de datos, permitiendo un análisis flexible de las relaciones entre variables.
+
+```r
+resultado <- calcular_correlaciones(df_new_renombrado, "Ansiedad de separación", "Búsqueda de atención", method = "pearson", winsorize = TRUE)
+print(resultado)
+```
+----
+
+Percentage distribution calculation using ThesiStats library
+Descripción:
+Esta función calcula la distribución porcentual para columnas especificadas dentro de un conjunto de datos. Es útil para entender las frecuencias relativas de diferentes categorías o valores en cada variable.
+
+```r
+# Suponiendo que 'data' es un data frame y 'columnas' es un vector de nombres de columnas
+porcentajes <- calcular_porcentajes(data, columnas)
+print(porcentajes)
+```
+
+----
+Likert Scale Detection using ThesiStats library
+Descripción:
+Esta función examina un data frame para encontrar expresiones únicas de escalas Likert consolidando todos los valores de las columnas en una sola columna e identificando entradas únicas. Es útil para reconocer respuestas estandarizadas en datos de encuestas.
+
+```r
+# Suponiendo que 'survey_data' es un data frame con múltiples preguntas de escala Likert
+likert_expressions <- detect_Likert(survey_data)
+print(likert_expressions)
+
+```
+
