@@ -1,4 +1,4 @@
-![Logo de ThesiStats](ruta/al/logo.png)
+![Logo de ThesiStats]([ruta/al/logo.png](https://raw.githubusercontent.com/jventural/ThesiStats/master/Logo%20de%20libreria.webp))
 
 # ThesiStats
 
