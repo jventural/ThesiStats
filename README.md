@@ -23,6 +23,10 @@ if (!require("devtools")) {
 }
 devtools::install_github("jventural/ThesiStats")
 ```
+# Tutorial básico de la librería de R ThesiStats
+[Para conocer más sobre el funcionamiento de esta librería, haga clic en este enlace:]([https://rpubs.com/jventural/EFA_Estimador_WLSMV](https://rpubs.com/jventural/Tutorial_ThesiStats))
+
+
 # Algunas de las funciones de la librería
 ## Omega coefficient calculation using ThesiStats library
 Esta función calcula la confiabilidad de todos los factores de un test en un conjunto de datos. Utiliza modelos de ecuaciones estructurales para estimar la confiabilidad compuesta, conocida como Omega, para cada factor especificado en el objeto extracted. Es útil en el análisis preliminar de demostrar la fiabilidad de los instrumentos antes de hacer estudios de correlación.
