@@ -24,7 +24,7 @@ if (!require("devtools")) {
 devtools::install_github("jventural/ThesiStats")
 ```
 # Tutorial básico de la librería de R ThesiStats
-[Para conocer más sobre el funcionamiento de esta librería, haga clic en este enlace:]([https://rpubs.com/jventural/EFA_Estimador_WLSMV](https://rpubs.com/jventural/Tutorial_ThesiStats))
+Para conocer más sobre el funcionamiento de esta librería, haga clic [Aquí](https://rpubs.com/jventural/EFA_Estimador_WLSMV)
 
 
 # Algunas de las funciones de la librería
