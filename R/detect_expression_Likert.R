@@ -17,7 +17,8 @@ detect_expression_Likert <- function(df, start_zero = TRUE) {
         "nunca", "a veces", "casi siempre", "siempre",
         "nunca", "casi nunca", "algunas veces", "regularmente", "bastantes veces", "casi siempre", "siempre",
         "nunca", "algunas veces", "bastantes veces", "siempre",
-        "nunca", "casi nunca", "a veces", "casi siempre", "siempre"
+        "nunca", "casi nunca", "a veces", "casi siempre", "siempre",
+        "nunca", "pocas veces", "regular", "muchas veces", "siempre"
       ),
       score = c(
         5, 4, 3, 2, 1,
@@ -30,7 +31,8 @@ detect_expression_Likert <- function(df, start_zero = TRUE) {
         0, 1, 2, 3,
         1, 2, 3, 4, 5, 6, 7,
         1, 2, 3, 4,
-        1, 2, 3, 4, 5
+        1, 2, 3, 4, 5,
+        0, 1, 2, 3, 4
       )
     )
 
@@ -47,7 +49,8 @@ detect_expression_Likert <- function(df, start_zero = TRUE) {
         str_replace_all("í", "i") %>%
         str_replace_all("ó", "o") %>%
         str_replace_all("ú", "u") %>%
-        str_replace_all("ü", "u")
+        str_replace_all("ü", "u") %>%
+        str_trim()  # Eliminar espacios en blanco al principio y al final
     }
 
     likert_responses$normalized_expression <- sapply(likert_responses$normalized_expression, normalize_expression)
