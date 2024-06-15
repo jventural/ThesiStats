@@ -1,11 +1,14 @@
 remplace_alternative_response <- function(df, columnas_valores_entradas) {
+  library(dplyr)
+  library(tidyr)
+  library(stringr)  # Para manipulación de cadenas
 
   # Función interna para convertir un string en listas de textos y números
   convertir_string_a_lista <- function(input_string) {
-    # Cambiar los saltos de línea por comas si están presentes
-    input_string <- gsub("\n", ", ", input_string)
+    # Cambiar los saltos de línea por punto y coma si están presentes
+    input_string <- gsub("\n", "; ", input_string)
     # Dividir el string modificado en elementos
-    lineas <- strsplit(input_string, ", ")[[1]]
+    lineas <- strsplit(input_string, "; ")[[1]]
     lineas <- trimws(lineas)
     lineas <- lineas[lineas != ""]
     textos <- sub("^[0-9]+\\.\\s*", "", lineas)

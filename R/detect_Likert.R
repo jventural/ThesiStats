@@ -37,13 +37,14 @@ detect_Likert <- function(df) {
     mutate(normalized_expression = normalize_expression(original_expression)) %>%
     distinct(column, normalized_expression, .keep_all = TRUE)
 
-  # Unir con el marco de datos de respuestas Likert para asignar puntuaciones
+  # Unir con el marco de datos de respuestas Likert para asignar puntuaciones y mantener el orden según la puntuación
   combined <- df %>%
     left_join(likert_responses, by = c("normalized_expression" = "normalized_expression")) %>%
     filter(!is.na(score)) %>%
-    select(original_expression) %>%
-    distinct(original_expression, .keep_all = TRUE)
+    select(original_expression, score) %>%
+    distinct() %>%
+    arrange(desc(score))  # Ordenar en función de la puntuación de manera descendente
 
-  # Devolver las expresiones en su forma original
+  # Devolver las expresiones en su forma original con el orden de las puntuaciones
   tibble(Alternativas = combined$original_expression)
 }

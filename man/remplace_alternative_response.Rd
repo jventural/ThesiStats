@@ -26,9 +26,9 @@ remplace_alternative_response(df, columnas_valores_entradas)
 \examples{
 # Assuming 'survey_data' is a data frame with text responses in certain columns
 column_mappings <- list(
-  list(c("CU1", "CU18"), "1. Nunca, 2. Ocasionalmente, 3. Algunas veces, 4. Frecuentemente, 5. Siempre"),
-  list(c("CP1", "CP16"), "1. Muy desacuerdo, 2. En desacuerdo, 3. Algo en desacuerdo, 4. De acuerdo, 5. Algo de acuerdo, 6. Muy de acuerdo"),
-  list(c("PT1", "PT14"), "1. Totalmente en desacuerdo, 2. En desacuerdo, 3. Ni de acuerdo ni en desacuerdo, 4. De acuerdo, 5. Totalmente de acuerdo")
+  list(c("CU1", "CU18"), "1. Nunca; 2. Ocasionalmente; 3. Algunas veces; 4. Frecuentemente; 5. Siempre"),
+  list(c("CP1", "CP16"), "1. Muy desacuerdo; 2. En desacuerdo; 3. Algo en desacuerdo; 4. De acuerdo; 5. Algo de acuerdo; 6. Muy de acuerdo"),
+  list(c("PT1", "PT14"), "1. Totalmente en desacuerdo; 2. En desacuerdo; 3. Ni de acuerdo ni en desacuerdo; 4. De acuerdo; 5. Totalmente de acuerdo")
 )
 df_transformado <- remplace_alternative_response(df_new_renombrado, column_mappings)
 print(df_transformado)
