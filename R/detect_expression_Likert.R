@@ -19,10 +19,13 @@ detect_expression_Likert <- function(df, start_zero = TRUE) {
         "nunca", "algunas veces", "bastantes veces", "siempre",
         "nunca", "casi nunca", "a veces", "casi siempre", "siempre",
         "nunca", "pocas veces", "regular", "muchas veces", "siempre",
-        "totalmente en desacuerdo", "en desacuerdo", "de acuerdo", "muy de acuerdo", "totalmente de acuerdo"
+        "totalmente en desacuerdo", "en desacuerdo", "de acuerdo", "muy de acuerdo", "totalmente de acuerdo",
+        "muy en desacuerdo", "algo en desacuerdo", "algo de acuerdo", "muy de acuerdo",
+        "completamente en desacuerdo", "en desacuerdo", "parcialmente en desacuerdo", "ni de acuerdo ni en desacuerdo", "parcialmente de acuerdo", "de acuerdo", "completamente de acuerdo",
+        "insatisfecho", "un poco satisfecho", "más o menos satisfecho", "bastante satisfecho", "completamente satisfecho"
       ),
       score = c(
-        1, 2, 3, 4, 5,  # actualizando las puntuaciones para "totalmente en desacuerdo", "en desacuerdo", "de acuerdo", "muy de acuerdo", "totalmente de acuerdo"
+        5, 4, 3, 2, 1,  # actualizando las puntuaciones para "totalmente en desacuerdo", "en desacuerdo", "de acuerdo", "muy de acuerdo", "totalmente de acuerdo"
         5, 4, 3, 2, 1,
         0, 1, 3, 4, 5,
         0, 2, 3, 4, 4,
@@ -34,9 +37,16 @@ detect_expression_Likert <- function(df, start_zero = TRUE) {
         1, 2, 3, 4,
         1, 2, 3, 4, 5,
         0, 1, 2, 3, 4,
+        1, 2, 3, 4, 5,
+        1, 2, 3, 4,
+        1, 2, 3, 4, 6, 5, 7,
         1, 2, 3, 4, 5
       )
     )
+
+    # Cambiar las puntuaciones de "de acuerdo" y "parcialmente de acuerdo"
+    likert_responses$score[likert_responses$normalized_expression == "de acuerdo"] <- 6
+    likert_responses$score[likert_responses$normalized_expression == "parcialmente de acuerdo"] <- 5
 
     # Eliminar duplicados en likert_responses
     likert_responses <- likert_responses %>%
