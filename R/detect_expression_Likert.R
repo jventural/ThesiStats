@@ -18,10 +18,11 @@ detect_expression_Likert <- function(df, start_zero = TRUE) {
         "nunca", "casi nunca", "algunas veces", "regularmente", "bastantes veces", "casi siempre", "siempre",
         "nunca", "algunas veces", "bastantes veces", "siempre",
         "nunca", "casi nunca", "a veces", "casi siempre", "siempre",
-        "nunca", "pocas veces", "regular", "muchas veces", "siempre"
+        "nunca", "pocas veces", "regular", "muchas veces", "siempre",
+        "totalmente en desacuerdo", "en desacuerdo", "de acuerdo", "muy de acuerdo", "totalmente de acuerdo"
       ),
       score = c(
-        5, 4, 3, 2, 1,
+        5, 4, 3, 2, 1,  # actualizando las puntuaciones para "totalmente de acuerdo", "de acuerdo", "indiferente", "en desacuerdo", "totalmente en desacuerdo"
         5, 4, 3, 2, 1,
         0, 1, 3, 4, 5,
         0, 2, 3, 4, 4,
@@ -32,7 +33,8 @@ detect_expression_Likert <- function(df, start_zero = TRUE) {
         1, 2, 3, 4, 5, 6, 7,
         1, 2, 3, 4,
         1, 2, 3, 4, 5,
-        0, 1, 2, 3, 4
+        0, 1, 2, 3, 4,
+        1, 2, 3, 4, 5
       )
     )
 
@@ -77,10 +79,10 @@ detect_expression_Likert <- function(df, start_zero = TRUE) {
   agregar_secuencia <- function(df, start_zero = TRUE) {
     if (start_zero) {
       df <- df %>%
-        mutate(score = row_number() - 1)
+        mutate(score = rev(1:n()))
     } else {
       df <- df %>%
-        mutate(score = row_number())
+        mutate(score = rev(1:n()))
     }
     return(df)
   }
