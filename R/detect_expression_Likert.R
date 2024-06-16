@@ -22,7 +22,8 @@ detect_expression_Likert <- function(df, start_zero = TRUE) {
         "totalmente en desacuerdo", "en desacuerdo", "de acuerdo", "muy de acuerdo", "totalmente de acuerdo",
         "muy en desacuerdo", "algo en desacuerdo", "algo de acuerdo", "muy de acuerdo",
         "completamente en desacuerdo", "en desacuerdo", "parcialmente en desacuerdo", "ni de acuerdo ni en desacuerdo", "parcialmente de acuerdo", "de acuerdo", "completamente de acuerdo",
-        "insatisfecho", "un poco satisfecho", "más o menos satisfecho", "bastante satisfecho", "completamente satisfecho"
+        "insatisfecho", "un poco satisfecho", "más o menos satisfecho", "bastante satisfecho", "completamente satisfecho",
+        "no, en absoluto", "algunos dias", "mas de la mitad de los dias", "casi todos los dias"
       ),
       score = c(
         5, 4, 3, 2, 1,  # actualizando las puntuaciones para "totalmente en desacuerdo", "en desacuerdo", "de acuerdo", "muy de acuerdo", "totalmente de acuerdo"
@@ -40,7 +41,8 @@ detect_expression_Likert <- function(df, start_zero = TRUE) {
         1, 2, 3, 4, 5,
         1, 2, 3, 4,
         1, 2, 3, 4, 6, 5, 7,
-        1, 2, 3, 4, 5
+        1, 2, 3, 4, 5,
+        1, 2, 3, 4
       )
     )
 
