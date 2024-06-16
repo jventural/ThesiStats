@@ -22,7 +22,7 @@ detect_expression_Likert <- function(df, start_zero = TRUE) {
         "totalmente en desacuerdo", "en desacuerdo", "de acuerdo", "muy de acuerdo", "totalmente de acuerdo"
       ),
       score = c(
-        5, 4, 3, 2, 1,  # actualizando las puntuaciones para "totalmente de acuerdo", "de acuerdo", "indiferente", "en desacuerdo", "totalmente en desacuerdo"
+        1, 2, 3, 4, 5,  # actualizando las puntuaciones para "totalmente en desacuerdo", "en desacuerdo", "de acuerdo", "muy de acuerdo", "totalmente de acuerdo"
         5, 4, 3, 2, 1,
         0, 1, 3, 4, 5,
         0, 2, 3, 4, 4,
@@ -79,10 +79,10 @@ detect_expression_Likert <- function(df, start_zero = TRUE) {
   agregar_secuencia <- function(df, start_zero = TRUE) {
     if (start_zero) {
       df <- df %>%
-        mutate(score = rev(1:n()))
+        mutate(score = row_number() - 1)
     } else {
       df <- df %>%
-        mutate(score = rev(1:n()))
+        mutate(score = row_number())
     }
     return(df)
   }
