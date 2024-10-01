@@ -3,54 +3,64 @@ detect_expression_Likert <- function(df, start_zero = TRUE) {
   library(tidyr)
   library(stringr)
 
+
+  # Función para detectar y ordenar expresiones Likert
   detect_Likert2 <- function(df) {
     # Definir las respuestas de Likert y sus puntuaciones
     likert_responses <- data.frame(
       normalized_expression = c(
+        # Expresiones del ejemplo de las nuevas imágenes con numeración
+        "moderadamente problematico", "muy problematico", "nada problematico", "solo ligeramente problematico",
+        "bastante buena", "bastante mala", "muy buena", "muy mala",
+
+        # Expresiones anteriores
+        "nunca se queda dormido", "escasa probabilidad de quedarse dormido",
+        "moderada probabilidad de quedarse dormido", "alta probabilidad de quedarse dormido",
+        "ninguna vez en el ultimo mes", "menos de una vez a la semana",
+        "una o dos veces a la semana", "tres o mas veces a la semana",
+        "casi nunca", "casi siempre", "con frecuencia", "en ocasiones", "nunca", "siempre",
+        "completamente de acuerdo", "completamente en desacuerdo", "de acuerdo",
+        "en desacuerdo", "me es indiferente",
+        "completamente falso de mi", "la mayor parte falso de mi", "ligeramente mas verdadero que falso",
+        "moderadamente verdadero de mi", "la mayor parte verdadero de mi", "me describe perfectamente",
+
+        # Expresiones clásicas de Likert
         "totalmente de acuerdo", "de acuerdo", "indiferente", "en desacuerdo", "totalmente en desacuerdo",
         "definitivamente si", "probablemente si", "indeciso", "probablemente no", "definitivamente no",
-        "nunca", "a veces", "generalmente", "muchisimas veces", "siempre",
+
+        # Expresiones para frecuencia
+        "nunca", "a veces", "con frecuencia", "muchísimas veces", "siempre",
+
+        # Otros patrones Likert existentes
         "nunca", "rara vez", "algunas veces", "casi siempre", "siempre",
         "la mayoria de las veces si", "algunas veces si", "algunas veces no", "la mayoria de las veces no",
         "completamente verdadero", "verdadero", "ni falso ni verdadero", "falso", "completamente falso",
-        "para nada", "varios dias", "mas de la mitad los dias", "casi todos los dias",
-        "nunca", "a veces", "casi siempre", "siempre",
-        "nunca", "casi nunca", "algunas veces", "regularmente", "bastantes veces", "casi siempre", "siempre",
-        "nunca", "algunas veces", "bastantes veces", "siempre",
-        "nunca", "casi nunca", "a veces", "casi siempre", "siempre",
-        "nunca", "pocas veces", "regular", "muchas veces", "siempre",
-        "totalmente en desacuerdo", "en desacuerdo", "de acuerdo", "muy de acuerdo", "totalmente de acuerdo",
-        "muy en desacuerdo", "algo en desacuerdo", "algo de acuerdo", "muy de acuerdo",
-        "completamente en desacuerdo", "en desacuerdo", "parcialmente en desacuerdo", "ni de acuerdo ni en desacuerdo", "parcialmente de acuerdo", "de acuerdo", "completamente de acuerdo",
-        "insatisfecho", "un poco satisfecho", "más o menos satisfecho", "bastante satisfecho", "completamente satisfecho",
-        "no, en absoluto", "algunos dias", "mas de la mitad de los dias", "casi todos los dias"
+        "para nada", "varios dias", "mas de la mitad los dias", "casi todos los dias"
       ),
+
+      # Puntaje correspondiente para cada expresión de menor a mayor intensidad
       score = c(
-        5, 4, 3, 2, 1,  # actualizando las puntuaciones para "totalmente en desacuerdo", "en desacuerdo", "de acuerdo", "muy de acuerdo", "totalmente de acuerdo"
-        5, 4, 3, 2, 1,
-        0, 1, 3, 4, 5,
-        0, 2, 3, 4, 4,
-        3, 2, 1, 1,
-        5, 4, 3, 2, 1,
-        1, 2, 3, 4,
+        # Puntajes asignados a las nuevas expresiones de las imágenes (0 a 3)
+        2, 3, 0, 1,  # Para la imagen de CS12 (problemático)
+        2, 3, 0, 1,  # Para la imagen de CS13 (buena/mala)
+
+        # Puntajes para el resto de expresiones
         0, 1, 2, 3,
-        1, 2, 3, 4, 5, 6, 7,
-        1, 2, 3, 4,
-        1, 2, 3, 4, 5,
+        0, 1, 2, 3,
+        1, 5, 3, 2, 0, 4,
+        5, 1, 4, 2, 3,
+        1, 2, 3, 4, 5, 6,
+        5, 4, 3, 2, 1,
+        5, 4, 3, 2, 1,
         0, 1, 2, 3, 4,
-        1, 2, 3, 4, 5,
-        1, 2, 3, 4,
-        1, 2, 3, 4, 6, 5, 7,
-        1, 2, 3, 4, 5,
-        1, 2, 3, 4
+        0, 1, 2, 3, 4,
+        3, 2, 1, 0,
+        5, 4, 3, 2, 1,
+        0, 1, 2, 3
       )
     )
 
-    # Cambiar las puntuaciones de "de acuerdo" y "parcialmente de acuerdo"
-    likert_responses$score[likert_responses$normalized_expression == "de acuerdo"] <- 6
-    likert_responses$score[likert_responses$normalized_expression == "parcialmente de acuerdo"] <- 5
-
-    # Eliminar duplicados en likert_responses
+    # Eliminar duplicados en likert_responses para evitar conflictos
     likert_responses <- likert_responses %>%
       distinct(normalized_expression, .keep_all = TRUE)
 
@@ -88,6 +98,7 @@ detect_expression_Likert <- function(df, start_zero = TRUE) {
     tibble(Alternativas = combined$original_expression)
   }
 
+  # Función para agregar la secuencia de puntajes si se requiere
   agregar_secuencia <- function(df, start_zero = TRUE) {
     if (start_zero) {
       df <- df %>%
@@ -99,6 +110,7 @@ detect_expression_Likert <- function(df, start_zero = TRUE) {
     return(df)
   }
 
+  # Aplicar las funciones a las expresiones detectadas
   expresiones_ordenadas_df <- detect_Likert2(df)
   expresiones_ordenadas_df <- agregar_secuencia(expresiones_ordenadas_df, start_zero)
   return(expresiones_ordenadas_df)
