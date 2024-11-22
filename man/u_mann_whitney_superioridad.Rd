@@ -7,34 +7,35 @@ This function calculates the probability of superiority (\(PS\)) as a measure of
 }
 
 \usage{
-u_mann_whitney_superioridad(data, formula, n1, n2, alternative = "two.sided")
+u_mann_whitney_superioridad(data, formula, alternative = "two.sided")
 }
 
 \arguments{
   \item{data}{A data frame containing the variables to be analyzed.}
-  \item{formula}{A formula specifying the dependent and independent variables for the Mann-Whitney U test (e.g., `outcome ~ group`).}
-  \item{n1}{The sample size of the first group.}
-  \item{n2}{The sample size of the second group.}
+  \item{formula}{A formula specifying the dependent and independent variables for the Mann-Whitney U test (e.g., \code{outcome ~ group}). The independent variable must have exactly two levels.}
   \item{alternative}{A character string specifying the alternative hypothesis. Options are \code{"two.sided"} (default), \code{"greater"}, or \code{"less"}.}
 }
 
 \details{
 The function performs the following steps:
-1. Applies the Mann-Whitney U test using the \code{wilcox.test} function.
-2. Extracts the test statistic and \(p\)-value using the \code{broom::glance} function.
-3. Computes the probability of superiority (\(PS\)) using the formula:
-   \[
-   PS = \frac{U}{n_1 \cdot n_2}
-   \]
-   where \(U\) is the Mann-Whitney test statistic, and \(n_1\) and \(n_2\) are the sample sizes of the two groups.
-4. Interprets the \(PS\) value based on the following thresholds:
-   - \code{"No effect"} if \(PS \leq 0.0\),
-   - \code{"Small"} if \(PS \geq 0.56\),
-   - \code{"Medium"} if \(PS \geq 0.64\),
-   - \code{"Large"} if \(PS \geq 0.71\).
+\enumerate{
+  \item Verifies that the independent variable in the formula has exactly two levels.
+  \item Automatically calculates the sample sizes (\(n_1\) and \(n_2\)) from the levels of the independent variable.
+  \item Applies the Mann-Whitney U test using the \code{wilcox.test} function.
+  \item Extracts the test statistic and \(p\)-value using the \code{broom::glance} function.
+  \item Computes the probability of superiority (\(PS\)) using the formula:
+  \deqn{PS = \frac{U}{n_1 \cdot n_2}}
+  where \(U\) is the Mann-Whitney test statistic, and \(n_1\) and \(n_2\) are the sample sizes of the two groups.
+  \item Interprets the \(PS\) value based on the following thresholds:
+  \itemize{
+    \item \code{"No effect"} if \(PS \leq 0.0\),
+    \item \code{"Small"} if \(PS \geq 0.56\),
+    \item \code{"Medium"} if \(PS \geq 0.64\),
+    \item \code{"Large"} if \(PS \geq 0.71\).
+  }
+}
 
 The function returns a data frame with the test statistic, \(p\)-value, \(PS\), and its interpretation.
-
 }
 
 \value{
@@ -47,6 +48,7 @@ A data frame with the following columns:
   \item{\code{PSest}: The calculated probability of superiority (\(PS\)).}
   \item{\code{Interpretación}: The interpretation of the \(PS\) value as "No effect", "Small", "Medium", or "Large".}
 }
+}
 
 \examples{
 # Example dataset
@@ -55,13 +57,13 @@ df <- data.frame(
   salario = c(2500, 2700, 3000, 2300, 2600, 3100)
 )
 
-# Applying the function with sample sizes of 3 for each group
-resultado <- u_mann_whitney_superioridad(data = df, formula = salario ~ sexo, n1 = 3, n2 = 3)
+# Applying the function
+resultado <- u_mann_whitney_superioridad(data = df, formula = salario ~ sexo)
 print(resultado)
 }
 
 \note{
-Installation and loading of the `broom` and `dplyr` libraries are required for the proper functioning of this function.
+Installation and loading of the \code{broom} and \code{dplyr} libraries are required for the proper functioning of this function. The independent variable in the formula must be a factor with exactly two levels.
 }
 
 \author{
