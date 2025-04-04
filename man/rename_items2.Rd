@@ -7,7 +7,7 @@ This function is designed to systematically rename survey or test items in a dat
 }
 
 \usage{
-rename_items(df, prefix1 = "CDE", prefix2 = "A", inici = "ItemStartPhrase", final = "ItemEndPhrase", n_items1 = 23, n_items2 = 10)
+rename_items(df, prefix1 = "CDE", prefix2 = "A", inicio = "ItemStartPhrase", final = "ItemEndPhrase", n_items1 = 23, n_items2 = 10)
 }
 
 \arguments{
