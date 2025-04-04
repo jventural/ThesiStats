@@ -1,5 +1,5 @@
-\name{rename_items}
-\alias{rename_items}
+\name{rename_items2}
+\alias{rename_items2}
 \title{Item Renaming Tool for Survey Data}
 
 \description{
