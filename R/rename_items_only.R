@@ -1,6 +1,6 @@
-rename_items_only <- function(df, prefix1 = "COPE", inici = NULL, final = NULL, n_items1 = NULL) {
-  if (!is.null(inici)) {
-    inici_idx <- which(colnames(df) == inici)
+rename_items_only <- function(df, prefix1 = "COPE", inicio = NULL, final = NULL, n_items1 = NULL) {
+  if (!is.null(inicio)) {
+    inici_idx <- which(colnames(df) == inicio)
   } else {
     inici_idx <- 1
   }

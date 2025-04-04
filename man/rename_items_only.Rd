@@ -7,7 +7,7 @@ This function renames the columns of a data frame within a specified range, givi
 }
 
 \usage{
-rename_items(df, prefix1 = "COPE", inici = NULL, final = NULL, n_items1 = NULL)
+rename_items(df, prefix1 = "COPE", inicio = NULL, final = NULL, n_items1 = NULL)
 }
 
 \arguments{
@@ -33,7 +33,7 @@ A data frame with renamed columns, based on the provided prefix and range.
 
 \examples{
 df <- data.frame(COPE1 = 1:5, COPE2 = 2:6, COPE3 = 3:7)
-renamed_df <- rename_items(df, prefix1 = "COPE", inici = "COPE1", final = "COPE3", n_items1 = 3)
+renamed_df <- rename_items(df, prefix1 = "COPE", inicio = "COPE1", final = "COPE3", n_items1 = 3)
 print(renamed_df)
 }
 
