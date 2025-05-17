@@ -1,52 +1,67 @@
 normalize_ciclo <- function(df, col_name = "Ciclo") {
-  # Instala y carga dplyr
-  if (!requireNamespace("dplyr", quietly = TRUE)) install.packages("dplyr")
-  library(dplyr, quietly = TRUE, warn.conflicts = FALSE)
-  # Instala y carga stringr
-  if (!requireNamespace("stringr", quietly = TRUE)) install.packages("stringr")
-  library(stringr, quietly = TRUE, warn.conflicts = FALSE)
-  # Instala y carga readr
-  if (!requireNamespace("readr", quietly = TRUE)) install.packages("readr")
-  library(readr, quietly = TRUE, warn.conflicts = FALSE)
+  # instalar y cargar dependencias
+  for(pkg in c("dplyr","stringr","readr")) {
+    if (!requireNamespace(pkg, quietly=TRUE)) install.packages(pkg)
+    library(pkg, character.only=TRUE, quietly=TRUE, warn.conflicts=FALSE)
+  }
 
-  df %>%
+  # 1) Limpiar y extraer valores
+  df2 <- df %>%
     mutate(
-      # 1. Limpieza básica
-      .clean = str_to_lower(str_squish(.data[[col_name]])),
+      .clean = .data[[col_name]] %>%
+        str_to_lower() %>%
+        str_replace_all("º|°", "") %>%
+        str_replace_all("[[:punct:]]", "") %>%
+        str_squish(),
 
-      # 2. Extrae cualquier número sin warnings
-      .num = suppressWarnings(parse_number(.clean)),
+      # extraer número puro sin warnings
+      .rawnum = suppressWarnings(parse_number(.clean)),
 
-      # 3. Detecta romanos completos
+      # numerales romanos
       .roman = str_extract(.clean,
                            "^(?i)(?:m{0,4}(?:cm|cd|d?c{0,3})(?:xc|xl|l?x{0,3})(?:ix|iv|v?i{0,3}))$"
       ),
       .num = coalesce(
-        .num,
+        .rawnum,
         if_else(!is.na(.roman),
                 as.numeric(as.roman(str_to_upper(.roman))),
                 NA_real_)
       ),
 
-      # 4. Mapea ordinales textuales en español, con sufijo opcional ' ciclo'
+      # patrones ordinales en texto
       .num = case_when(
-        str_detect(.clean, "^(primero|1ero)(?: ciclo)?$")       ~ 1,
-        str_detect(.clean, "^(segundo|2do)(?: ciclo)?$")        ~ 2,
-        str_detect(.clean, "^(tercer|3ro)(?: ciclo)?$")         ~ 3,
-        str_detect(.clean, "^(cuarto|4to)(?: ciclo)?$")         ~ 4,
-        str_detect(.clean, "^(quinto|5to)(?: ciclo)?$")         ~ 5,
-        str_detect(.clean, "^(sexto|6to)(?: ciclo)?$")          ~ 6,
-        str_detect(.clean, "^(s[eé]ptimo|7mo)(?: ciclo)?$")     ~ 7,
-        str_detect(.clean, "^(octavo|8vo)(?: ciclo)?$")         ~ 8,
-        str_detect(.clean, "^(noveno|9no)(?: ciclo)?$")         ~ 9,
-        str_detect(.clean, "^(d[eé]cimo|10mo)(?: ciclo)?$")     ~ 10,
-        str_detect(.clean, "^(once|11)(?:avo|ero)?(?: ciclo)?$") ~ 11,
-        TRUE                                                   ~ .num
-      ),
+        str_detect(.clean, "^(primer|primero|1er|1ero)(?: ciclo)?$")  ~ 1,
+        str_detect(.clean, "^(segundo|2do)(?: ciclo)?$")             ~ 2,
+        str_detect(.clean, "^(tercer|3ro|3er)(?: ciclo)?$")          ~ 3,
+        str_detect(.clean, "^(cuarto|4to)(?: ciclo)?$")             ~ 4,
+        str_detect(.clean, "^(quinto|5to)(?: ciclo)?$")             ~ 5,
+        str_detect(.clean, "^(sexto|6to)(?: ciclo)?$")              ~ 6,
+        str_detect(.clean, "^(s[eé]ptimo|7mo)(?: ciclo)?$")         ~ 7,
+        str_detect(.clean, "^(octavo|8vo)(?: ciclo)?$")             ~ 8,
+        str_detect(.clean, "^(noveno|9no)(?: ciclo)?$")             ~ 9,
+        str_detect(.clean, "^(d[eé]cimo|10mo|decimo)(?: ciclo)?$")   ~ 10,
+        str_detect(.clean, "^(once|11)(?:avo|ero)?(?: ciclo)?$")     ~ 11,
+        TRUE                                                       ~ .num
+      )
+    )
 
-      # 5. Sobrescribe y convierte a entero
+  # 2) Identificar y eliminar filas que no pudieron normalizar
+  problematic <- df2 %>%
+    filter(is.na(.num)) %>%
+    select(Original = !!sym(col_name), Limpio = .clean) %>%
+    distinct()
+
+  if (nrow(problematic) > 0) {
+    message("Se eliminaron ", nrow(problematic),
+            " fila(s) por no poder normalizar en '", col_name, "':")
+    print(problematic, n = Inf)
+  }
+
+  # 3) Filtrar solo los casos válidos y finalizar
+  df2 %>%
+    filter(!is.na(.num)) %>%
+    mutate(
       !!sym(col_name) := as.integer(.num)
     ) %>%
-    # Limpia columnas temporales
-    select(-.clean, -.num, -.roman)
+    select(-.clean, -.rawnum, -.roman, -.num)
 }

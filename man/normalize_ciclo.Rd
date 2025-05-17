@@ -2,43 +2,42 @@
 \alias{normalize_ciclo}
 \title{Normalize Academic Cycle Strings to Integer Values}
 \description{
-This function standardizes heterogeneous representations of academic cycle or semester data in a data frame by converting various string formats (e.g., “4to ciclo”, “III”, “7mo”, “10.0”) into integer cycle numbers (1–11). It handles numeric, Roman numeral, ordinal text (Spanish), and optional “ciclo” suffix variants.
+Standardiza representaciones heterogéneas de ciclos académicos en un data frame, convirtiendo distintas formas de texto (por ejemplo, “4to ciclo”, “III”, “7mo”, “10.0”) en valores enteros de 1 a 11. Reconoce números arábigos, numerales romanos, palabras ordinales en español y abreviaturas con sufijo opcional “ciclo”.
 }
 \usage{
 normalize_ciclo(df, col_name = "Ciclo")
 }
 \arguments{
-\item{df}{A data frame or tibble containing the column to normalize.}
-\item{col_name}{A string specifying the name of the column with cycle information; defaults to \code{"Ciclo"}.}
+  \item{df}{Un data frame o tibble que contiene la columna a normalizar.}
+  \item{col_name}{Cadena de caracteres con el nombre de la columna que contiene la información de ciclo; por defecto \code{"Ciclo"}.}
 }
 \details{
-The function ensures that \pkg{dplyr}, \pkg{stringr}, and \pkg{readr} are installed and loaded. It then:
+La función se encarga de instalar (si es necesario) y cargar los paquetes \pkg{dplyr}, \pkg{stringr} y \pkg{readr}. Luego:
 \enumerate{
-\item Cleans the target column by trimming whitespace and converting to lowercase.
-\item Uses \code{parse_number()} (with warnings suppressed) to extract any numeric value (e.g., “8.0” → 8).
-\item Detects full Roman numerals (I–XI) and converts them via \code{as.roman()}.
-\item Maps Spanish ordinal words (e.g., “primero”, “séptimo”) and abbreviations (“1ero”, “7mo”) — with an optional “ ciclo” suffix — to their numeric equivalents.
-\item Writes the final integer back into the original column and drops all temporary helper columns.
+  \item Limpia la columna objetivo convirtiendo a minúsculas, quitando signos de grado (º, °), puntuación y espacios sobrantes.
+  \item Extrae valores numéricos con \code{parse_number()} (suprimiendo advertencias), de modo que “8.0” → 8.
+  \item Detecta numerales romanos válidos (I–XI) con expresiones regulares y los convierte mediante \code{as.roman()}.
+  \item Mapea palabras ordinales en español (“primero”, “séptimo”) y abreviaturas (“1ero”, “7mo”) — con o sin la palabra “ciclo” — a su equivalente numérico.
+  \item Reemplaza la columna original con el entero resultante y elimina las columnas auxiliares de procesamiento.
 }
 }
 \value{
-A modified version of the input \code{df} in which the specified \code{col_name} has been replaced by integer cycle numbers (1–11). All other columns remain unchanged.
+Un data frame idéntico al original, salvo que la columna especificada en \code{col_name} ha sido sustituida por valores enteros (1–11). Las demás columnas permanecen sin cambios.
 }
 \examples{
-
-Suppose df has a column 'Ciclo' with mixed formats
+## Data frame de ejemplo con formatos mixtos
 df <- data.frame(Ciclo = c("4to ciclo", "III", "7mo", "10.0", "Sexto ciclo"))
 
-Normalize to integers
+## Normalizar a enteros
 df_norm <- normalize_ciclo(df, "Ciclo")
 
-Result:
-Ciclo
-1 4
-2 3
-3 7
-4 10
-5 6
+## Resultado esperado:
+##   Ciclo
+## 1     4
+## 2     3
+## 3     7
+## 4    10
+## 5     6
 }
 \author{
 Dr. José Ventura-León
