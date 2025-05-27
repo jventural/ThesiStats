@@ -1,9 +1,9 @@
 convert_age_to_years <- function(df,
-                                 col_name = "Edad",
-                                 round_decimals = 2,
-                                 drop_missing = FALSE) {
+                                  col_name = "Edad",
+                                  round_decimals = 2,
+                                  drop_missing = FALSE) {
   # 1) Instalar y cargar dependencias
-  pkgs <- c("dplyr", "stringr", "tibble", "readr")
+  pkgs <- c("dplyr", "stringr", "tibble", "readr", "rlang")
   for (pkg in pkgs) {
     if (!requireNamespace(pkg, quietly = TRUE)) install.packages(pkg)
     library(pkg, character.only = TRUE, quietly = TRUE)
@@ -27,14 +27,18 @@ convert_age_to_years <- function(df,
   }
 
   cleaned_vec <- vapply(raw_vec, convert_years_only, numeric(1))
+  cleaned_vec <- unname(cleaned_vec)
 
-  # reconstruir df limpio y df de verificación
-  cleaned_df <- df %>% mutate(!!col_name := cleaned_vec)
+  # reconstruir df limpio usando el nombre dinámico de columna
+  cleaned_df <- df %>%
+    mutate(!!rlang::sym(col_name) := cleaned_vec)
+
   verify_df  <- tibble(raw = raw_vec, cleaned = cleaned_vec)
 
   # opcional: eliminar filas sin edad
   if (drop_missing) {
-    cleaned_df <- cleaned_df %>% filter(!is.na(.data[[col_name]]))
+    cleaned_df <- cleaned_df %>%
+      filter(!is.na(.data[[col_name]]))
   }
 
   # mensajes de advertencia (si no hicimos drop)
