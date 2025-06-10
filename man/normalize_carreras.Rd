@@ -2,51 +2,68 @@
 \alias{normalize_carreras}
 \title{Normalize Academic Program Names and Faculties to Standard Labels}
 \description{
-Estandariza nombres de programas académicos en un data frame, asignando a cada entrada su etiqueta oficial y, opcionalmente, la facultad correspondiente, según la base interna \code{ThesiStats::carreras_peruanas}. Emplea distancia de Jaro–Winkler sobre cadenas preprocesadas (sin acentos ni puntuación) para identificar la mejor coincidencia dentro de un umbral configurable.
+Standardizes academic program names in a data frame, assigning each entry its official label and, optionally, the corresponding faculty, based on the internal \code{ThesiStats::carreras_peruanas} catalog. It employs multiple fuzzy-matching strategies (Jaro–Winkler, Levenshtein, cosine, Jaccard) and a preliminary manual dictionary to maximize coverage of name variants.
 }
 \usage{
-normalize_carreras(df, col_name = "Carrera", max_dist = 0.15, facultad = FALSE)
+normalize_carreras(df,
+col_name = "Carrera",
+max_dist = 0.15,
+facultad = FALSE,
+manual_path = NULL,
+force_match = FALSE,
+fallback_dist = 0.4,
+remove_unmatched = FALSE)
 }
 \arguments{
-\item{df}{Un data frame o tibble que contiene la columna con los nombres de carreras a normalizar.}
-\item{col_name}{Cadena de caracteres con el nombre de la columna que contiene las carreras originales; por defecto \code{"Carrera"}.}
-\item{max_dist}{Distancia máxima de Jaro–Winkler para considerar una coincidencia válida; por defecto \code{0.15}.}
-\item{facultad}{Lógico; si es \code{TRUE}, además de la columna de carreras normalizadas (\code{<col_name>_norm}), añade otra columna (\code{<col_name>_facultad}) con la facultad asociada.}
+\item{df}{A \code{data.frame} or \code{tibble} containing the column with program names to normalize.}
+\item{col_name}{Name of the column in \code{df} with the original program names; defaults to \code{"Carrera"}.}
+\item{max_dist}{Maximum allowed distance (Jaro–Winkler or other methods) for a valid match on the first pass; defaults to \code{0.15}.}
+\item{facultad}{Logical; if \code{TRUE}, in addition to \code{<col_name>_norm}, adds \code{<col_name>_facultad} with the associated faculty.}
+\item{manual_path}{Path to an Excel file containing a manual recoding dictionary with columns \code{raw} and \code{normalized}; if \code{NULL}, no manual recoding is applied.}
+\item{force_match}{Logical; if \code{TRUE}, retries matching for unmatched entries using a more permissive threshold (\code{fallback_dist}) and keyword-based strategies.}
+\item{fallback_dist}{Maximum distance for forced matching (only used if \code{force_match = TRUE}); defaults to \code{0.4}.}
+\item{remove_unmatched}{Logical; if \code{TRUE}, removes rows that could not be normalized instead of leaving them as \code{NA}.}
 }
 \details{
-La función realiza los siguientes pasos:
+The function performs the following steps:
 \enumerate{
-\item Instala (si es necesario) y carga los paquetes \pkg{dplyr}, \pkg{stringr}, \pkg{stringdist} y \pkg{stringi}.
-\item Carga el catálogo interno \code{ThesiStats::carreras_peruanas}, que incluye las columnas \code{Carrera} y \code{Facultad}.
-\item Preprocesa tanto las entradas de \code{df} como el catálogo, convirtiendo a minúsculas, eliminando acentos (vía \code{stri_trans_general}), quitando puntuación y espacios sobrantes.
-\item Para cada valor original:
-\begin{itemize}
-\item Calcula la distancia de Jaro–Winkler frente a todas las cadenas del catálogo.
-\item Selecciona la entrada con la mínima distancia si ésta es menor o igual a \code{max_dist}; en caso contrario, asigna \code{NA}.
-\end{itemize}
-\item Construye la columna \code{<col_name>_norm} con el nombre de la carrera normalizada; si \code{facultad = TRUE}, añade también \code{<col_name>_facultad} con la facultad correspondiente.
-\item Muestra un mensaje listando las entradas que quedaron sin normalizar (\code{NA}) o confirma que todas se procesaron correctamente.
+\item Installs (if missing) and loads the required packages: \pkg{dplyr}, \pkg{stringr}, \pkg{stringdist}, \pkg{stringi}, and \pkg{readxl}.
+\item Loads the internal catalog \code{ThesiStats::carreras_peruanas} and preprocesses its names (lowercase, ASCII conversion, punctuation removal).
+\item If \code{manual_path} is provided, reads the Excel dictionary, cleans its keys, and constructs a named vector \code{dic_manual}.
+\item Preprocesses the original column in the same way as the catalog and applies manual recoding where applicable.
+\item For each prepared entry, computes fuzzy-matching distances using several methods and selects the best match within \code{max_dist}.
+\item If \code{force_match = TRUE}, reattempts matching on initially unmatched entries using \code{fallback_dist} and also attempts keyword-based matches.
+\item Builds the \code{<col_name>_norm} column with normalized names and, if \code{facultad = TRUE}, the \code{<col_name>_facultad} column.
+\item If \code{remove_unmatched = TRUE}, removes rows with no normalization; otherwise, reports which entries remain \code{NA} and suggests possible matches.
 }
 }
 \value{
-Un data frame idéntico al original, con las siguientes columnas adicionales:
-\item{\code{<col_name>_norm}}{Vector de caracteres con las carreras normalizadas (o \code{NA} si no hubo coincidencia).}
-\item{\code{<col_name>_facultad}}{(Sólo si \code{facultad = TRUE}) Vector de caracteres con la facultad asociada a cada carrera normalizada (o \code{NA}).}
+A \code{data.frame} identical to the input, with these additional columns:
+\item{\code{<col_name>_norm}}{Character vector of normalized program names (or \code{NA} if no match).}
+\item{\code{<col_name>_facultad}}{(Only if \code{facultad = TRUE}) Character vector of the associated faculty (or \code{NA}).}
 }
 \examples{
 
-Data frame de ejemplo con variantes de nombres
+# Basic example: standard fuzzy matching only
 df <- data.frame(
-Carrera = c("Psicologia", "Ing. Industrias Alimentarias", "Derecho", "PSICO"),
+Carrera = c("Psicologia", "Ing. sistemas", "cosmetologa"),
 stringsAsFactors = FALSE
 )
-
-Solo normalizar nombres de carrera
 normalize_carreras(df)
 
-Normalizar nombres y obtener facultades
+# Include faculty information
 normalize_carreras(df, facultad = TRUE)
+
+# Use a manual dictionary stored in Excel (with columns raw and normalized)
+saved at "data/dic_manual.xlsx"
+normalize_carreras(df,
+manual_path = "data/dic_manual.xlsx",
+max_dist = 0.2)
+
+# Force more permissive matching and remove unmatched rows
+normalize_carreras(df,
+force_match = TRUE,
+fallback_dist = 0.5,
+remove_unmatched = TRUE)
 }
-\author{
-Dr. José Ventura-León
-}
+\author{Dr. José Ventura-León}
