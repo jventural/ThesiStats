@@ -36,7 +36,27 @@ calcular_correlaciones <- function(data, columna_inicial, columna_final, method 
     p_values <- format(win_results$p.values, scientific = FALSE, digits = 4) # Evitar notación científica
   } else {
     cor_values <- round(cor(data, method = method), 2)
-    p_values <- NULL
+
+    # Calcular p-valores para cualquier método (Pearson o Spearman)
+    n_vars <- ncol(data)
+    p_values <- matrix(NA, nrow = n_vars, ncol = n_vars)
+    rownames(p_values) <- colnames(data)
+    colnames(p_values) <- colnames(data)
+
+    for (i in 1:(n_vars - 1)) {
+      for (j in (i + 1):n_vars) {
+        tryCatch({
+          test_result <- cor.test(data[[i]], data[[j]], method = method, exact = FALSE)
+          p_values[i, j] <- test_result$p.value
+          p_values[j, i] <- test_result$p.value
+        }, error = function(e) {
+          p_values[i, j] <- NA
+          p_values[j, i] <- NA
+        })
+      }
+    }
+
+    p_values <- format(p_values, scientific = FALSE, digits = 4)
   }
 
   # Aplicar significancia si `show_pval` es TRUE
