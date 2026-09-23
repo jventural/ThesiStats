@@ -1,22 +1,26 @@
+#' Frequencies and Percentages of Categorical Variables
+#'
+#' For each variable in `columnas`, counts the observations of each category
+#' and its percentage of the total.
+#'
+#' @param data A data frame.
+#' @param columnas Character vector with the names of the categorical
+#'   variables.
+#'
+#' @return A named list with one tibble per variable, holding the categories,
+#'   their counts (`n`) and percentages (`Porcentaje`).
+#' @export
+#' @examples
+#' df <- data.frame(sexo = c("F", "M", "F", "F", "M"),
+#'                  ciclo = c(1, 2, 2, 3, 3))
+#' calcular_porcentajes(df, c("sexo", "ciclo"))
 calcular_porcentajes <- function(data, columnas) {
-  # Función para instalar y cargar librerías
-  install_and_load <- function(package) {
-    if (!requireNamespace(package, quietly = TRUE)) {
-      install.packages(package)
-    }
-    library(package, character.only = TRUE)
-  }
-
-  # Instalar y cargar las librerías requeridas
-  install_and_load("tidyverse")
-
-  resultados_lista <- map(columnas, function(col) {
+  resultados_lista <- lapply(columnas, function(col) {
     data %>%
       group_by(.data[[col]]) %>%
       summarise(n = n(), .groups = "drop") %>%
       mutate(Porcentaje = n / sum(n) * 100)
   })
 
-  resultados_lista <- setNames(resultados_lista, columnas)
-  return(resultados_lista)
+  stats::setNames(resultados_lista, columnas)
 }

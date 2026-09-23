@@ -1,19 +1,22 @@
+#' Mardia's Test of Multivariate Normality
+#'
+#' Computes Mardia's multivariate skewness and kurtosis tests with
+#' [psych::mardia()] and reports whether each one is compatible with
+#' multivariate normality (p >= .05).
+#'
+#' @param data A data frame or matrix of numeric variables.
+#'
+#' @return A data frame with the columns `Test`, `Statistic`, `p.value`
+#'   (formatted, `"p < .001"` when p <= .001) and `Result` (`"YES"` when
+#'   normality is not rejected).
+#' @export
+#' @examples
+#' set.seed(1)
+#' df <- as.data.frame(matrix(rnorm(200 * 3), ncol = 3))
+#' mardia_test(df)
 mardia_test <- function(data) {
-  # Función para instalar y cargar librerías
-  install_and_load <- function(package) {
-    if (!requireNamespace(package, quietly = TRUE)) {
-      install.packages(package)
-    }
-    library(package, character.only = TRUE)
-  }
+  A <- psych::mardia(data, plot = FALSE)
 
-  # Instalar y cargar las librerías requeridas
-  install_and_load("psych")
-  install_and_load("dplyr")
-
-  A <- mardia(data, plot=F)
-
-  # Crear el data frame de resultados
   result <- data.frame(
     Test = c("Mardia Skewness", "Mardia Kurtosis"),
     Statistic = c(A$small.skew, A$kurtosis),
@@ -21,11 +24,8 @@ mardia_test <- function(data) {
     Result = c(ifelse(A$p.small < 0.05, "NO", "YES"), ifelse(A$p.kurt < 0.05, "NO", "YES"))
   )
 
-  # Ajustar primero los valores p y luego aplicar el formato condicional
-  result$p.value <- round(result$p.value, 3)  # Redondear todos los valores de p
-
-  # Aplicar la condición de formato especial después del redondeo
+  result$p.value <- round(result$p.value, 3)
   result$p.value <- ifelse(result$p.value <= 0.001, "p < .001", as.character(result$p.value))
 
-  return(result)
+  result
 }

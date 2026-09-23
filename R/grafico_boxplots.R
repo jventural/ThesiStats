@@ -1,28 +1,28 @@
+#' Boxplots of Several Variables
+#'
+#' Draws one boxplot per variable, each in its own panel with its own scale,
+#' to inspect the distribution and outliers of the scores.
+#'
+#' @param data A data frame.
+#' @param cols Character vector with the names of the variables.
+#'
+#' @return A ggplot object.
+#' @export
+#' @examples
+#' set.seed(1)
+#' df <- data.frame(ansiedad = rnorm(60, 20, 4), depresion = rexp(60, 0.2))
+#' grafico_boxplots(df, c("ansiedad", "depresion"))
 grafico_boxplots <- function(data, cols) {
-  # Función para instalar y cargar librerías
-  install_and_load <- function(package) {
-    if (!requireNamespace(package, quietly = TRUE)) {
-      install.packages(package)
-    }
-    library(package, character.only = TRUE)
-  }
+  dat.m <- data %>%
+    mutate(ID = seq_len(nrow(data))) %>%
+    select(ID, all_of(cols)) %>%
+    tidyr::pivot_longer(all_of(cols), names_to = "Variables", values_to = "value") %>%
+    mutate(Variables = factor(Variables, levels = cols))
 
-  # Instalar y cargar las librerías requeridas
-  install_and_load("reshape2")
-  install_and_load("ggplot2")
-
-  data <- data %>% mutate(ID = 1:nrow(data))
-
-  dat.m <- melt(data, id.vars = 'ID', measure.vars = cols) %>%
-    rename(Variables = "variable")
-
-  p <- ggplot(dat.m) +
-    geom_boxplot(aes(x=ID, y=value, fill=Variables)) +
-    facet_wrap(~Variables, scales = "free") +
-    theme_bw() +
-    xlab(" ")+
-    theme(legend.position = "none")
-
-  return(p)
+  ggplot2::ggplot(dat.m) +
+    ggplot2::geom_boxplot(ggplot2::aes(x = ID, y = value, fill = Variables)) +
+    ggplot2::facet_wrap(~Variables, scales = "free") +
+    ggplot2::theme_bw() +
+    ggplot2::xlab(" ") +
+    ggplot2::theme(legend.position = "none")
 }
-

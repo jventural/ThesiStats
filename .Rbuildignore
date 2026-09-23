@@ -1,2 +1,11 @@
 ^.*\.Rproj$
 ^\.Rproj\.user$
+^\.Rhistory$
+^\.RData$
+^data-raw$
+^.*\.xlsx$
+^Logo_.*\.png$
+^cran-comments\.md$
+^CRAN-SUBMISSION$
+^.*\.Rcheck$
+^Rplots\.pdf$

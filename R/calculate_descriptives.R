@@ -1,25 +1,27 @@
+#' Descriptive Statistics of a Range of Columns
+#'
+#' Computes, with [psych::describe()], the mean, standard deviation, minimum,
+#' maximum, skewness and kurtosis of the columns from `start_col` to
+#' `end_col`, plus the mean as a percentage of the maximum.
+#'
+#' @param data A data frame.
+#' @param start_col,end_col Names of the first and last columns of the range.
+#'
+#' @return A data frame with the columns `Variables`, `Media`, `DE`, `Min.`,
+#'   `Max.`, `g1` (skewness), `g2` (kurtosis) and `%`, rounded to two decimals.
+#' @export
+#' @examples
+#' set.seed(1)
+#' df <- data.frame(ansiedad = rnorm(50, 20, 4), depresion = rnorm(50, 15, 3))
+#' calculate_descriptives(df, "ansiedad", "depresion")
 calculate_descriptives <- function(data, start_col, end_col) {
-  # Función para instalar y cargar librerías
-  install_and_load <- function(package) {
-    if (!requireNamespace(package, quietly = TRUE)) {
-      install.packages(package)
-    }
-    library(package, character.only = TRUE)
-  }
-
-  # Instalar y cargar las librerías requeridas
-  install_and_load("tidyverse")
-  install_and_load("psych")
-
-  # Cálculo de estadísticas descriptivas
   data %>%
-    select(start_col:end_col) %>%
+    select(all_of(start_col):all_of(end_col)) %>%
     psych::describe() %>%
     as.data.frame() %>%
-    mutate("%" = mean/max*100) %>%
+    mutate("%" = mean / max * 100) %>%
     select(mean, sd, min, max, skew, kurtosis, "%") %>%
     rename(Media = mean, DE = sd, Min. = min, Max. = max, g1 = skew, g2 = kurtosis) %>%
     round(2) %>%
-    rownames_to_column(var = "Variables")
+    tibble::rownames_to_column(var = "Variables")
 }
-

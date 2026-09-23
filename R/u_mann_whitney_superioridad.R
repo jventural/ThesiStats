@@ -1,45 +1,53 @@
+#' Mann-Whitney U Test with the Probability of Superiority
+#'
+#' Runs a Mann-Whitney U test (Wilcoxon rank-sum) between two groups and adds
+#' the probability of superiority, \eqn{PS = U / (n_1 n_2)}: the probability
+#' that a random case of the first group scores higher than a random case of
+#' the second.
+#'
+#' @param data A data frame.
+#' @param formula A formula `outcome ~ group`; the group must have exactly two
+#'   levels.
+#' @param alternative Alternative hypothesis passed to [stats::wilcox.test()].
+#'
+#' @details PS = .50 means no effect. The size is judged on the distance from
+#'   .50 in either direction, using max(PS, 1 - PS): at least .71 is
+#'   "Grande", at least .64 "Mediano", at least .56 "Pequeño" and below that
+#'   "No efecto".
+#'
+#' @return A tibble with the test results (`statistic` is U for the first
+#'   group, `p.value`, `method`, `alternative`), `PSest` and `Interpretación`.
+#' @export
+#' @examples
+#' set.seed(1)
+#' df <- data.frame(grupo = rep(c("A", "B"), each = 30),
+#'                  puntaje = c(rnorm(30, 10), rnorm(30, 11)))
+#' u_mann_whitney_superioridad(df, puntaje ~ grupo)
 u_mann_whitney_superioridad <- function(data, formula, alternative = "two.sided") {
-  # Cargar librerías necesarias
-  if (!requireNamespace("broom", quietly = TRUE) || !requireNamespace("dplyr", quietly = TRUE)) {
-    stop("Por favor, instala los paquetes 'broom' y 'dplyr' antes de usar esta función.")
-  }
-
-  # Separar fórmula en términos
   variable_respuesta <- all.vars(formula)[1]
   variable_comparacion <- all.vars(formula)[2]
 
-  # Verificar que la variable de comparación sea categórica
-  if (!is.factor(data[[variable_comparacion]])) {
-    data[[variable_comparacion]] <- as.factor(data[[variable_comparacion]])
-  }
+  data <- data[stats::complete.cases(data[, c(variable_respuesta, variable_comparacion)]), ,
+               drop = FALSE]
+  data[[variable_comparacion]] <- droplevels(as.factor(data[[variable_comparacion]]))
 
-  # Contar niveles de la variable de comparación
   niveles <- table(data[[variable_comparacion]])
-  n1 <- niveles[1]
-  n2 <- niveles[2]
-
   if (length(niveles) != 2) {
-    stop("La variable de comparación debe tener exactamente 2 niveles.")
+    stop("La variable de comparaci\u00f3n debe tener exactamente 2 niveles.")
   }
+  n1 <- as.numeric(niveles[1])
+  n2 <- as.numeric(niveles[2])
 
-  # Aplicar la prueba U de Mann-Whitney
-  resultado <- wilcox.test(formula, alternative = alternative, data = data)
+  resultado <- stats::wilcox.test(formula, alternative = alternative, data = data)
 
-  # Extraer el resultado con broom::glance
-  resultado_glance <- broom::glance(resultado)
-
-  # Calcular el tamaño del efecto PS y agregar interpretación
-  resultado_glance <- resultado_glance %>%
-    dplyr::mutate(
-      PSest = statistic / (n1 * n2),  # Cálculo de PS = U / (n1 * n2)
-      Interpretación = dplyr::case_when(
-        PSest <= 0.0 ~ "No efecto",
-        PSest >= 0.71 ~ "Grande",
-        PSest >= 0.64 ~ "Mediano",
-        PSest >= 0.56 ~ "Pequeño",
+  broom::glance(resultado) %>%
+    mutate(
+      PSest = statistic / (n1 * n2),
+      "Interpretaci\u00f3n" = dplyr::case_when(
+        pmax(PSest, 1 - PSest) >= 0.71 ~ "Grande",
+        pmax(PSest, 1 - PSest) >= 0.64 ~ "Mediano",
+        pmax(PSest, 1 - PSest) >= 0.56 ~ "Peque\u00f1o",
         TRUE ~ "No efecto"
       )
     )
-
-  return(resultado_glance)
 }

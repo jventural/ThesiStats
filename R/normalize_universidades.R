@@ -1,12 +1,23 @@
+#' Normalize Peruvian University Names to Their Acronyms
+#'
+#' Matches free-text university names or acronyms against the catalog
+#' [universidades_peruanas] with Jaro-Winkler distance and adds a column with
+#' the standard acronym.
+#'
+#' @param df A data frame.
+#' @param col_name Name of the column with the university names.
+#'
+#' @return `df` with the column `<col_name>_norm` (the acronym, or `NA` when
+#'   there is no match within a distance of .15) placed after `col_name`.
+#' @export
+#' @examples
+#' df <- data.frame(U = c("Universidad Nacional Mayor de San Marcos", "unmsm"))
+#' normalize_universidades(df, "U")
 normalize_universidades <- function(df, col_name) {
-  # 1) Instalar y cargar dependencias
-  for (pkg in c("dplyr", "stringr", "stringdist")) {
-    if (!requireNamespace(pkg, quietly = TRUE)) install.packages(pkg)
-    library(pkg, character.only = TRUE, quietly = TRUE, warn.conflicts = FALSE)
-  }
 
   # 2) Tomar la referencia interna de tu paquete ThesiStats
   ref_df <- ThesiStats::universidades_peruanas
+  acronimos <- ref_df[[2]]  # column with the acronyms
 
   original <- df[[col_name]]
 
@@ -22,14 +33,14 @@ normalize_universidades <- function(df, col_name) {
                                      tolower(ref_df$Nombre),
                                      method = "jw")
     d_acro <- stringdist::stringdist(x_clean,
-                                     tolower(ref_df$Acrónimo),
+                                     tolower(acronimos),
                                      method = "jw")
 
     min_name <- min(d_name, na.rm = TRUE); i_name <- which.min(d_name)
     min_acro <- min(d_acro, na.rm = TRUE); i_acro <- which.min(d_acro)
 
-    if      (min_name <= min_acro && min_name <= 0.15) ref_df$Acrónimo[i_name]
-    else if (min_acro <  min_name && min_acro <= 0.15) ref_df$Acrónimo[i_acro]
+    if      (min_name <= min_acro && min_name <= 0.15) acronimos[i_name]
+    else if (min_acro <  min_name && min_acro <= 0.15) acronimos[i_acro]
     else                                          NA_character_
   }
 
@@ -40,9 +51,9 @@ normalize_universidades <- function(df, col_name) {
   no_match <- unique(original[is.na(matched)])
   if (length(no_match) > 0) {
     message("No se pudieron normalizar estas universidades y quedaron NA:\n",
-            paste0(" • ", no_match, collapse = "\n"))
+            paste0(" \u2022 ", no_match, collapse = "\n"))
   } else {
-    message("✅ Todas las universidades se normalizaron correctamente.")
+    message("Todas las universidades se normalizaron correctamente.")
   }
 
   # 6) Insertar la columna normalizada justo después de la original

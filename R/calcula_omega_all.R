@@ -1,49 +1,38 @@
+#' Omega Reliability of Several Factors
+#'
+#' Applies [Fiabilidad()] to every factor of a list of item names and returns
+#' the omega coefficient of each one.
+#'
+#' @param extracted A named list: each element holds the item names of one
+#'   factor, as returned by [extract_items()].
+#' @param data A data frame with the item responses.
+#'
+#' @return A data frame with the columns `Variables` (factor name) and `Omega`.
+#' @export
+#' @examples
+#' \donttest{
+#' set.seed(123)
+#' n <- 300
+#' eta <- matrix(rnorm(n * 2), n, 2) %*% chol(0.7 * diag(2) + 0.3)
+#' items <- as.data.frame(sapply(1:8, function(j) as.numeric(cut(
+#'   0.7 * eta[, ceiling(j / 4)] + rnorm(n, 0, 0.7),
+#'   c(-Inf, -1.5, -0.5, 0.5, 1.5, Inf)))))
+#' names(items) <- c(paste0("ANS", 1:4), paste0("DEP", 1:4))
+#'
+#' factores <- extract_items(c("Ansiedad: ANS1, ANS2, ANS3, ANS4",
+#'                             "Depresion: DEP1, DEP2, DEP3, DEP4"))
+#' calcula_omega_all(factores, items)
+#' }
 calcula_omega_all <- function(extracted, data) {
-  # Función para instalar y cargar librerías
-  install_and_load <- function(package) {
-    if (!requireNamespace(package, quietly = TRUE)) {
-      install.packages(package)
-    }
-    library(package, character.only = TRUE)
-  }
+  resultados <- data.frame(Variables = character(), Omega = numeric())
 
-  # Instalar y cargar las librerías requeridas
-  install_and_load("tidyverse")
-  install_and_load("lavaan")
-  install_and_load("semTools")
-  install_and_load("dplyr")
-
-  # Initialize the results dataframe
-  resultados <- data.frame(Variables = character(),
-                           Omega = numeric())
-
-  # Internal function to calculate reliability
-  fiabilidad_interna <- function(vars, data) {
-    # Extract the values of the variables in 'vars' from the data frame 'data'.
-    temp_data <- data %>% select(all_of(vars))
-
-    # Create the model using the variable names in 'vars'.
-    model_original <- paste("F1 =~", paste0(vars, collapse = " + "))
-
-    # Estimating the model
-    fit.original <- cfa(model_original, data = temp_data, estimator = "WLSMV", mimic = "Mplus", ordered = TRUE)
-
-    # Calculate composite reliability
-    resultado <- compRelSEM(fit.original, tau.eq = F, ord.scale = T)
-    return(resultado)
-  }
-
-  # Iterate over the keys (variable names) in the object 'extracted'.
   for (key in names(extracted)) {
-    vars <- extracted[[key]]
-    omega <- fiabilidad_interna(vars = vars, data = data)
+    # compRelSEM() may return a named vector or a one-row list/data frame
+    omega <- as.numeric(unlist(Fiabilidad(vars = extracted[[key]], data = data)))[1]
     resultados <- rbind(resultados, data.frame(Variables = key, Omega = omega))
   }
   rownames(resultados) <- NULL
-
-  # Convert Omega column to numeric
   resultados$Omega <- as.numeric(resultados$Omega)
 
-  return(resultados)
+  resultados
 }
-

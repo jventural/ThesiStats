@@ -1,3 +1,31 @@
+#' Normalize Peruvian University Degree Names
+#'
+#' Matches free-text degree names (for example "psicologia", "Ing. de
+#' Sistemas") against the catalog [carreras_peruanas] with fuzzy string
+#' matching, and adds a column with the standardized name (and optionally the
+#' faculty).
+#'
+#' @param df A data frame.
+#' @param col_name Name of the column with the degree names. Defaults to
+#'   `"Carrera"`.
+#' @param max_dist Maximum string distance accepted as a match (0 to 1).
+#' @param facultad Logical. Also add a column with the faculty.
+#' @param manual_path Optional path to an Excel file with the columns `raw`
+#'   and `normalized`, a manual dictionary applied before the fuzzy matching
+#'   (requires the readxl package).
+#' @param force_match Logical. Retry unmatched values with the more permissive
+#'   `fallback_dist` (not recommended).
+#' @param fallback_dist Distance used when `force_match = TRUE`.
+#' @param remove_unmatched Logical. Remove the rows whose degree could not be
+#'   normalized.
+#'
+#' @return `df` with the column `<col_name>_norm` (and `<col_name>_facultad`
+#'   when `facultad = TRUE`) placed after `col_name`. Messages report the
+#'   values that could not be normalized.
+#' @export
+#' @examples
+#' df <- data.frame(Carrera = c("psicologia", "Derecho", "zzz"))
+#' normalize_carreras(df)
 normalize_carreras <- function(df,
                                col_name    = "Carrera",
                                max_dist    = 0.15,
@@ -6,10 +34,9 @@ normalize_carreras <- function(df,
                                force_match = FALSE,  # forzar matching (no recomendado)
                                fallback_dist = 0.4,
                                remove_unmatched = FALSE) { # NUEVO: eliminar no compatibles
-  # 0. instalar/cargar dependencias
-  for (pkg in c("dplyr", "stringr", "stringdist", "stringi", "readxl")) {
-    if (!requireNamespace(pkg, quietly = TRUE)) install.packages(pkg)
-    library(pkg, character.only = TRUE, quietly = TRUE, warn.conflicts = FALSE)
+  if (!is.null(manual_path) && !requireNamespace("readxl", quietly = TRUE)) {
+    stop("manual_path needs the 'readxl' package: install.packages(\"readxl\").",
+         call. = FALSE)
   }
 
   # 1. leer catálogo de carreras (interno)
@@ -108,13 +135,13 @@ normalize_carreras <- function(df,
   if (force_match) {
     na_positions <- which(is.na(idx))
     if (length(na_positions) > 0) {
-      message("🔄 Intentando matching forzado para ", length(na_positions), " valores...")
+      message("Intentando matching forzado para ", length(na_positions), " valores...")
 
       for (pos in na_positions) {
         forced_idx <- match_index(clean_prep[pos], use_fallback = TRUE)
         if (!is.na(forced_idx)) {
           idx[pos] <- forced_idx
-          message("✅ Forzado: '", original[pos], "' → '", ref_df$Carrera[forced_idx], "'")
+          message("Forzado: '", original[pos], "' \u2192 '", ref_df$Carrera[forced_idx], "'")
         }
       }
     }
@@ -126,7 +153,18 @@ normalize_carreras <- function(df,
     ifelse(is.na(idx), NA_character_, ref_df$Facultad[idx])
   }
 
-  # 9. manejo de valores sin normalizar
+  # 9. armar la salida y manejar los valores sin normalizar
+  out <- df %>%
+    mutate(!!paste0(col_name, "_norm") := carreras_norm) %>%
+    relocate(!!paste0(col_name, "_norm"), .after = all_of(col_name))
+
+  if (facultad) {
+    out <- out %>%
+      mutate(!!paste0(col_name, "_facultad") := facultades_norm) %>%
+      relocate(!!paste0(col_name, "_facultad"),
+               .after = all_of(paste0(col_name, "_norm")))
+  }
+
   no_match <- unique(original[is.na(carreras_norm)])
 
   if (length(no_match) > 0) {
@@ -135,20 +173,20 @@ normalize_carreras <- function(df,
       rows_to_remove <- which(is.na(carreras_norm))
       n_removed <- length(rows_to_remove)
 
-      message("🗑️  Eliminando ", n_removed, " filas con carreras no compatibles:")
-      message(paste0(" • ", no_match, collapse = "\n"))
+      message(" Eliminando ", n_removed, " filas con carreras no compatibles:")
+      message(paste0(" \u2022 ", no_match, collapse = "\n"))
 
       # Filtrar el dataframe
       out <- out[-rows_to_remove, ]
 
-      message("✅ Dataset limpio: ", nrow(out), " filas restantes")
+      message("Dataset limpio: ", nrow(out), " filas restantes")
 
     } else {
-      message("❗ Quedaron sin normalizar:\n",
-              paste0(" • ", no_match, collapse = "\n"))
+      message("Quedaron sin normalizar:\n",
+              paste0(" \u2022 ", no_match, collapse = "\n"))
 
       # Sugerir matches manuales
-      message("\n💡 Sugerencias de matches manuales:")
+      message("\nSugerencias de matches manuales:")
       for (nm in head(no_match, 10)) { # Mostrar solo los primeros 10
         nm_clean <- nm %>%
           tolower() %>%
@@ -159,28 +197,16 @@ normalize_carreras <- function(df,
         dists <- stringdist::stringdist(nm_clean, ref_clean, method = "jw")
         top3 <- order(dists)[1:3]
 
-        message("   '", nm, "' podría ser:")
+        message("   '", nm, "' podr\u00eda ser:")
         for (i in 1:3) {
           message("     - ", ref_df$Carrera[top3[i]], " (dist: ", round(dists[top3[i]], 3), ")")
         }
       }
 
-      message("\n💡 Tip: Usa remove_unmatched = TRUE para eliminar estas filas")
+      message("\nTip: Usa remove_unmatched = TRUE para eliminar estas filas")
     }
   } else {
-    message("✅ Todas las carreras se normalizaron.")
-  }
-
-  # 10. devolver data.frame con columnas nuevas
-  out <- df %>%
-    mutate(!!paste0(col_name, "_norm") := carreras_norm) %>%
-    relocate(!!paste0(col_name, "_norm"), .after = all_of(col_name))
-
-  if (facultad) {
-    out <- out %>%
-      mutate(!!paste0(col_name, "_facultad") := facultades_norm) %>%
-      relocate(!!paste0(col_name, "_facultad"),
-               .after = all_of(paste0(col_name, "_norm")))
+    message("Todas las carreras se normalizaron.")
   }
 
   out

@@ -1,11 +1,22 @@
+#' Normalize the Length of a Relationship to Months
+#'
+#' Converts free-text durations in Spanish ("1 año y 6 meses", "2 semanas",
+#' "un año y medio", "8") into months.
+#'
+#' @param df A data frame.
+#' @param col_name Name of the column with the duration. Defaults to
+#'   `"Tiempo_Relacion"`.
+#' @param remover Logical. Remove the rows that could not be converted
+#'   (`TRUE`, default) or keep them with `NA`.
+#'
+#' @return A data frame with the new column `<col_name>_norm` (months).
+#' @export
+#' @examples
+#' df <- data.frame(Tiempo_Relacion = c("1 año y 6 meses", "2 semanas", "8"))
+#' normalize_tiempo_relacion(df)
 normalize_tiempo_relacion <- function(df,
                                       col_name = "Tiempo_Relacion",
                                       remover   = TRUE) {
-  # 0) Dependencias
-  for (pkg in c("dplyr", "stringr", "readr")) {
-    if (!requireNamespace(pkg, quietly = TRUE)) install.packages(pkg)
-    library(pkg, character.only = TRUE, quietly = TRUE, warn.conflicts = FALSE)
-  }
 
   df2 <- df %>%
     mutate(
@@ -16,13 +27,13 @@ normalize_tiempo_relacion <- function(df,
       # Casos especiales a priorizar
       meses_especial = case_when(
         .clean == "7 casi 8"                          ~ 8,
-        str_replace_all(.clean, '\\s+', '') == "1añoy6meses" ~ 18,
-        .clean == "3 años y 8 meses"                  ~ 44,
-        .clean == "1 año 5 meses"                     ~ 17,
-        str_detect(.clean, "^1 año y tres meses$")     ~ 15,
-        str_detect(.clean, "^un año con dos meses$")   ~ 14,
-        str_detect(.clean, "^1 año y cuatro meses$")   ~ 16,
-        str_detect(.clean, "^1 año con 11 meses$")     ~ 23,
+        str_replace_all(.clean, '\\s+', '') == "1a\u00f1oy6meses" ~ 18,
+        .clean == "3 a\u00f1os y 8 meses"                  ~ 44,
+        .clean == "1 a\u00f1o 5 meses"                     ~ 17,
+        str_detect(.clean, "^1 a\u00f1o y tres meses$")     ~ 15,
+        str_detect(.clean, "^un a\u00f1o con dos meses$")   ~ 14,
+        str_detect(.clean, "^1 a\u00f1o y cuatro meses$")   ~ 16,
+        str_detect(.clean, "^1 a\u00f1o con 11 meses$")     ~ 23,
         str_detect(.clean, "^1 y 7 meses$")            ~ 19,
         TRUE                                            ~ NA_real_
       ),
@@ -38,7 +49,7 @@ normalize_tiempo_relacion <- function(df,
       meses_combo = {
         m <- str_match(
           .clean,
-          regex("(?i)^(\\d+)\\s*años?\\s*(?:y\\s*)?(\\d+)\\s*meses?", ignore_case = TRUE)
+          regex("(?i)^(\\d+)\\s*a\u00f1os?\\s*(?:y\\s*)?(\\d+)\\s*meses?", ignore_case = TRUE)
         )
         x <- as.numeric(m[,2])
         y <- as.numeric(m[,3])
@@ -60,15 +71,15 @@ normalize_tiempo_relacion <- function(df,
 
       # 4) Años y medio y años simples
       years = case_when(
-        str_detect(.clean, "\\b(un|una) año[s]? y medio\\b")        ~ 1.5,
-        str_detect(.clean, "\\d+\\s*año[s]? y medio\\b")         ~ as.numeric(
-          str_extract(.clean, "\\d+(?=\\s*año)")) + 0.5,
+        str_detect(.clean, "\\b(un|una) a\u00f1o[s]? y medio\\b")        ~ 1.5,
+        str_detect(.clean, "\\d+\\s*a\u00f1o[s]? y medio\\b")         ~ as.numeric(
+          str_extract(.clean, "\\d+(?=\\s*a\u00f1o)")) + 0.5,
         TRUE                                                          ~ NA_real_
       ),
-      años = case_when(
-        str_detect(.clean, "\\b(un|una) año[s]?\\b")               ~ 1,
-        str_detect(.clean, "\\d+\\s*año[s]?\\b")                ~ as.numeric(
-          str_extract(.clean, "\\d+(?=\\s*año)")),
+      anios = case_when(
+        str_detect(.clean, "\\b(un|una) a\u00f1o[s]?\\b")               ~ 1,
+        str_detect(.clean, "\\d+\\s*a\u00f1o[s]?\\b")                ~ as.numeric(
+          str_extract(.clean, "\\d+(?=\\s*a\u00f1o)")),
         TRUE                                                          ~ NA_real_
       ),
 
@@ -83,7 +94,7 @@ normalize_tiempo_relacion <- function(df,
       ),
       num_puro = suppressWarnings(as.numeric(str_replace(.clean, ",", "."))),
       meses_puro = if_else(
-        !is.na(num_puro) & !str_detect(.clean, "años?|meses?|semanas?"),
+        !is.na(num_puro) & !str_detect(.clean, "a\u00f1os?|meses?|semanas?"),
         num_puro,
         NA_real_
       ),
@@ -102,7 +113,7 @@ normalize_tiempo_relacion <- function(df,
         meses_combo,
         meses_semana,
         years   * 12,
-        años    * 12,
+        anios   * 12,
         meses,
         meses_puro,
         0
@@ -118,21 +129,21 @@ normalize_tiempo_relacion <- function(df,
   df_out <- df2 %>%
     mutate(!!paste0(col_name, "_norm") := total_months) %>%
     select(-.clean, -meses_especial, -meses_casi, -meses_combo, -meses_semana,
-           -years, -años, -meses, -num_puro, -meses_puro,
+           -years, -anios, -meses, -num_puro, -meses_puro,
            -meses_casi_solo, -total_months)
 
   # 10) Remover o dejar NAs
   if (remover) {
     if (nrow(problematic) > 0) {
       message("Se eliminaron ", nrow(problematic),
-              " fila(s) sin normalizar en '", col_name, "':")
-      print(problematic, n = Inf)
+              " fila(s) sin normalizar en '", col_name, "':\n",
+              paste0("  - ", problematic[[col_name]], collapse = "\n"))
     }
     df_out <- df_out %>% filter(!is.na(.data[[paste0(col_name, "_norm")]]))
   } else {
     if (nrow(problematic) > 0) {
       message("Se encontraron ", nrow(problematic),
-              " fila(s) sin normalizar; se asignó NA en '",
+              " fila(s) sin normalizar; se asign\u00f3 NA en '",
               paste0(col_name, "_norm"), "'.")
     }
   }
