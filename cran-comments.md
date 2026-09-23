@@ -14,7 +14,15 @@ group comparisons with effect sizes).
 
 ## R CMD check results
 
-<RESULTADOS>
+win-builder (R-devel): 0 errors | 0 warnings | 1 note
+
+* NOTE: "New submission". Expected for a first submission.
+* The same note lists "Possibly misspelled words in DESCRIPTION": 'Likert' is
+  the name of the rating-scale format (after Rensis Likert) and
+  'sociodemographic' is a standard term. Both are correct.
+
+Local (R 4.4.1, --as-cran --run-donttest): 0 errors | 0 warnings | 2 notes
+("New submission" and "unable to verify current time", local only).
 
 ## Notes for the reviewer
 
